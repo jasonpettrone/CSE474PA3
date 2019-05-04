@@ -50,10 +50,11 @@ class NBC(BaseEstimator):
             else:
                 N2 += 1
 
-        P1 = (N1 + a) / (N + a + b)
+        P1 = (N1 + a) / (N + a + b) # Equation 5
         P2 = 1 - P1
 
-        numSubFeatures = [4, 1, 5, 11, 1, 5, 5, 1, 3, 1, 4, 3, 3, 1, 4, 1, 2, 2]
+        #numSubFeatures = [4, 1, 5, 11, 1, 5, 5, 1, 3, 1, 4, 3, 3, 1, 4, 1, 2, 2]
+        numSubFeatures = [4, 5, 5, 11, 9, 5, 5, 4, 3, 4, 4, 3, 3, 4, 4, 2, 2, 2]
         p1 = np.zeros(shape=(11, 18))
         p2 = np.zeros(shape=(11, 18))
         for i in range(0, X.shape[1]):
@@ -66,17 +67,17 @@ class NBC(BaseEstimator):
                         if(y[k] == 1):
                             p1Total += 1
                 if(total == 0):
-                    p1[j, i] = 0
-                    p2[j, i] = 0
+                    p1[j, i] = 1
+                    p2[j, i] = 1
                 else:
                     p1[j, i] = (p1Total + alpha) / (N1 + numSubFeatures[i] * alpha) # Equation 8
                     p2[j, i] = ((total - p1Total) + alpha) / (N2 + numSubFeatures[i] * alpha) # Equation 9
 
         # remove next line and implement from here
         # you are free to use any data structure for paramse
-        params = None 
+        params = p1, p2, P1, P2
         # do not change the line below
-        self.__params = params
+        self.params = params
     
     # you need to implement this function
     def predict(self,Xtest):
@@ -89,12 +90,34 @@ class NBC(BaseEstimator):
         Output:
         predictions: N length numpy array containing the predictions
         '''
-        params = self.__params
+        params = self.params
         a = self.get_a()
         b = self.get_b()
         alpha = self.get_alpha()
         #remove next line and implement from here
-        predictions = np.random.choice(self.__classes,np.unique(Xtest.shape[0]))
+        predictions = np.random.choice(self.__classes, np.unique(Xtest.shape[0]))
+        for i in range(0, Xtest.shape[0]): # Select customer
+            p1 = params[0]
+            p2 = params[1]
+            p1SumProbability = 1
+            p2SumProbability = 1
+            for j in range(0, p1.shape[0]): # Go over each feature
+                if(j==1):
+                    customerSubfeatureSelector = Xtest[i][j]
+                else:
+                    customerSubfeatureSelector = Xtest[i][j] - 1
+                p1SumProbability *= p1[customerSubfeatureSelector][j]
+                p2SumProbability *= p2[customerSubfeatureSelector][j]
+            p1Probability = (params[2] * p1SumProbability) / (params[2] * p1SumProbability + params[3] * p2SumProbability)
+            p2Probability = (params[3] * p2SumProbability) / (params[2] * p1SumProbability + params[3] * p2SumProbability)
+            if(p1Probability >= p2Probability):
+                predictions[i] = 1
+            else:
+                predictions[i] = 2
+
+
+
+
         #do not change the line below
         return predictions
         
