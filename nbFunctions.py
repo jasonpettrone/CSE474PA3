@@ -55,8 +55,8 @@ class NBC(BaseEstimator):
 
         #numSubFeatures = [4, 1, 5, 11, 1, 5, 5, 1, 3, 1, 4, 3, 3, 1, 4, 1, 2, 2]
         numSubFeatures = [4, 5, 5, 11, 9, 5, 5, 4, 3, 4, 4, 3, 3, 4, 4, 2, 2, 2]
-        p1 = np.zeros(shape=(11, 18))
-        p2 = np.zeros(shape=(11, 18))
+        p1 = P1 * np.ones(shape=(11, 18))
+        p2 = P2 * np.ones(shape=(11, 18))
         for i in range(0, X.shape[1]):
             for j in range(0, numSubFeatures[i]):
                 total = 0
@@ -67,8 +67,8 @@ class NBC(BaseEstimator):
                         if(y[k] == 1):
                             p1Total += 1
                 if(total == 0):
-                    p1[j, i] = 1
-                    p2[j, i] = 1
+                    p1[j, i] = P1
+                    p2[j, i] = P2
                 else:
                     p1[j, i] = (p1Total + alpha) / (N1 + numSubFeatures[i] * alpha) # Equation 8
                     p2[j, i] = ((total - p1Total) + alpha) / (N2 + numSubFeatures[i] * alpha) # Equation 9
