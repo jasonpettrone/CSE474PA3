@@ -134,7 +134,16 @@ def evaluateBias(y_pred,y_sensitive):
     di (disparateimpact): scalar value
     '''
     #remove next line and implement from here
-    di = 0
+    numerator = 0
+    denominator = 0
+    for i in range(0, len(y_pred)):
+        if((y_pred[i] == 2) & (y_sensitive[i] != 1)):
+            numerator += 1
+        elif((y_pred[i] == 2) & (y_sensitive[i] == 1)):
+            denominator += 1
+
+
+    di = numerator / denominator
     
     #do not change the line below
     return di
